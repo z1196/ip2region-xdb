@@ -1,0 +1,19 @@
+.idea
+.venv
+.vscode
+__pycache__
+*.pyc
+*.egg-info
+
+# Downloaded mmdb files
+data/*.mmdb
+
+# Generated files
+data/*.xdb
+data/*_source.txt
+
+# Last upstream release tracker
+.last_upstream_release
+
+# uv
+uv.lock
