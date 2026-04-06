@@ -43,19 +43,19 @@ func atoi(s string) int {
 // startIP|endIP|...|province|city|districts|isp|net|provinceCode|cityCode|districtsCode
 func parseLine(line string) (string, string, Record, bool) {
     parts := strings.Split(strings.TrimSpace(line), "|")
-    if len(parts) < 11 {
+    if len(parts) < 9 {
         return "", "", Record{}, false
     }
 
     return parts[0], parts[1], Record{
-        Province:      parts[3],
-        City:          parts[4],
-        Districts:     parts[5],
-        ISP:           parts[6],
-        Net:           parts[7],
-        ProvinceCode:  atoi(parts[8]),
-        CityCode:      atoi(parts[9]),
-        DistrictsCode: atoi(parts[10]),
+        Province:      parts[4],
+        City:          parts[5],
+        Districts:     parts[6],
+        ISP:           parts[7],
+        Net:           parts[8],
+        ProvinceCode:  0,
+        CityCode:      0,
+        DistrictsCode: 0,
     }, true
 }
 
