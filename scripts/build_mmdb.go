@@ -44,12 +44,6 @@ func parseLine(line string) (string, string, Record, bool) {
     }, true
 }
 
-func trimSuffix(s string) string {
-    s = strings.TrimSuffix(s, "省")
-    s = strings.TrimSuffix(s, "市")
-    return s
-}
-
 func detectType(isp string) string {
     if strings.Contains(isp, "移动") {
         return "移动"
@@ -64,34 +58,13 @@ func detectType(isp string) string {
 }
 
 func toMMDBRecord(r Record) mmdbtype.DataType {
-    // 构造 regions 数组（省、市、区）
-    regions := mmdbtype.Slice{}
-    regionsShort := mmdbtype.Slice{}
-
-    // 省
-    if r.Region != "" {
-        regions = append(regions, mmdbtype.String(r.Region))
-        regionsShort = append(regionsShort, mmdbtype.String(trimSuffix(r.Region)))
-    }
-
-    // 市
-    if r.City != "" {
-        regions = append(regions, mmdbtype.String(r.City))
-        regionsShort = append(regionsShort, mmdbtype.String(trimSuffix(r.City)))
-    }
-
-    // 区（从 ISP 字段中提取不到，保持空或未来扩展）
-    // 如果你未来加入 district 字段，这里可以 append
-
-    // type 字段（宽带/移动/联通）
-    netType := detectType(r.ISP)
-
     return mmdbtype.Map{
-        "regions":       regions,
-        "regions_short": regionsShort,
-        "type":          mmdbtype.String(netType),
-        "asn":           mmdbtype.String(r.ASN),
-        "isp":           mmdbtype.String(r.ISP),
+        "province":  mmdbtype.String(r.Region),
+        "city":      mmdbtype.String(r.City),
+        "districts": mmdbtype.String(""), // 你未来可以补区县
+        "isp":       mmdbtype.String(r.ISP),
+        "net":       mmdbtype.String(detectType(r.ISP)),
+        "asn":       mmdbtype.String(r.ASN),
     }
 }
 
