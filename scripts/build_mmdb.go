@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/oschwald/maxminddb-golang/mmdbwriter"
+	""github.com/maxmind/mmdbwriter"r"
 )
 
 const (
