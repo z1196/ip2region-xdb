@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	""github.com/maxmind/mmdbwriter"r"
+	"github.com/maxmind/mmdbwriter"
 )
 
 const (
