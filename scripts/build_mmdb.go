@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"log"
 	"net"
@@ -13,7 +14,7 @@ import (
 )
 
 const (
-	dataDir   = "data"
+	dataDir    = "data"
 	outputMMDB = "GeoCN.mmdb"
 
 	ipv4Src = "ipv4_source.txt"
