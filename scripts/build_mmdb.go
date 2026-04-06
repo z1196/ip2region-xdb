@@ -83,11 +83,14 @@ func main() {
 	outputPath := filepath.Join(dataDir, outputMMDB)
 	fmt.Println("Building MMDB:", outputPath)
 
-	writer := mmdbwriter.New(
-		"GeoCN",
-		[]string{"zh-CN"},
-		map[string]string{"zh-CN": "GeoCN mmdb"},
-	)
+	writer, err := mmdbwriter.New(mmdbwriter.Options{
+		DatabaseType: "GeoCN",
+		Languages:    []string{"zh-CN"},
+		Description:  map[string]string{"zh-CN": "GeoCN mmdb"},
+	})
+	if err != nil {
+		log.Fatalf("writer init error: %v", err)
+	}
 
 	processFile(writer, filepath.Join(dataDir, ipv4Src))
 	processFile(writer, filepath.Join(dataDir, ipv6Src))
