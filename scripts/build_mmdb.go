@@ -22,48 +22,35 @@ const (
 )
 
 type Record struct {
-    Country string
-    Region  string
-    City    string
-    ISP     string
-    ASN     string
+    Province  string
+    City      string
+    Districts string
+    ISP       string
+    ASN       string
 }
 
 func parseLine(line string) (string, string, Record, bool) {
     parts := strings.Split(strings.TrimSpace(line), "|")
-    if len(parts) < 7 {
+    if len(parts) < 8 {
         return "", "", Record{}, false
     }
 
     return parts[0], parts[1], Record{
-        Country: parts[2],
-        Region:  parts[3],
-        City:    parts[4],
-        ISP:     parts[5],
-        ASN:     parts[6],
+        Province:  parts[3],
+        City:      parts[4],
+        Districts: parts[5],
+        ISP:       parts[6],
+        ASN:       parts[7],
     }, true
-}
-
-func detectType(isp string) string {
-    if strings.Contains(isp, "移动") {
-        return "移动"
-    }
-    if strings.Contains(isp, "联通") {
-        return "联通"
-    }
-    if strings.Contains(isp, "电信") {
-        return "电信"
-    }
-    return "宽带"
 }
 
 func toMMDBRecord(r Record) mmdbtype.DataType {
     return mmdbtype.Map{
-        "province":  mmdbtype.String(r.Region),
+        "province":  mmdbtype.String(r.Province),
         "city":      mmdbtype.String(r.City),
-        "districts": mmdbtype.String(""), // 你未来可以补区县
+        "districts": mmdbtype.String(r.Districts),
         "isp":       mmdbtype.String(r.ISP),
-        "net":       mmdbtype.String(detectType(r.ISP)),
+        "net":       mmdbtype.String(r.ISP), // 直接使用 ISP 作为网络类型
         "asn":       mmdbtype.String(r.ASN),
     }
 }
