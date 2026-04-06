@@ -50,7 +50,7 @@ func toMMDBRecord(r Record) mmdbtype.DataType {
         "city":      mmdbtype.String(r.City),
         "districts": mmdbtype.String(r.Districts),
         "isp":       mmdbtype.String(r.ISP),
-        "net":       mmdbtype.String(r.ISP), // 直接使用 ISP 作为网络类型
+        "net":       mmdbtype.String(r.ISP),
         "asn":       mmdbtype.String(r.ASN),
     }
 }
