@@ -67,9 +67,9 @@ func toMMDBRecord(r Record) mmdbtype.DataType {
         "province":      mmdbtype.String(r.Province),
         "city":          mmdbtype.String(r.City),
         "districts":     mmdbtype.String(r.Districts),
-        "provinceCode":  mmdbtype.Int(r.ProvinceCode),
-        "cityCode":      mmdbtype.Int(r.CityCode),
-        "districtsCode": mmdbtype.Int(r.DistrictsCode),
+        "provinceCode":  mmdbtype.Int32(r.ProvinceCode),
+        "cityCode":      mmdbtype.Int32(r.CityCode),
+        "districtsCode": mmdbtype.Int32(r.DistrictsCode),
     }
 }
 
