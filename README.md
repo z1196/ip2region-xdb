@@ -174,3 +174,4 @@ docker run --rm -v $(pwd)/data:/app/data lionsoul2014/ip2region-maker:latest \
 - [P3TERX/GeoLite.mmdb](https://github.com/P3TERX/GeoLite.mmdb) - GeoLite2 数据库镜像
 - [ljxi/GeoCN](https://github.com/ljxi/GeoCN) - 中国 IP 地理数据库
 - [MaxMind](https://www.maxmind.com/) - GeoLite2 数据提供商
+- [darlene-he/location](https://github.com/darlene-he/location) - 区域编码数据来自
