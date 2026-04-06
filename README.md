@@ -169,7 +169,7 @@ docker run --rm -v $(pwd)/data:/app/data lionsoul2014/ip2region-maker:latest \
 本项目采用 MIT 许可证。
 
 ## 🙏 致谢
-
+- [fa1seut0pia/ip2region-xdb](https://github.com/lionsoul2014/ip2region) - 项目来源
 - [lionsoul2014/ip2region](https://github.com/lionsoul2014/ip2region) - IP 地址查询库
 - [P3TERX/GeoLite.mmdb](https://github.com/P3TERX/GeoLite.mmdb) - GeoLite2 数据库镜像
 - [ljxi/GeoCN](https://github.com/ljxi/GeoCN) - 中国 IP 地理数据库
