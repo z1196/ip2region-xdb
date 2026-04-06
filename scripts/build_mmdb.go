@@ -50,13 +50,25 @@ func compareIP(a, b net.IP) int {
 }
 
 func lastIP(n *net.IPNet) net.IP {
-	ip := n.IP.To16()
+	ip := n.IP
 	mask := n.Mask
-	broadcast := make(net.IP, len(ip))
-	for i := range ip {
-		broadcast[i] = ip[i] | ^mask[i]
+
+	// IPv4
+	if v4 := ip.To4(); v4 != nil {
+		out := make(net.IP, net.IPv4len)
+		for i := 0; i < net.IPv4len; i++ {
+			out[i] = v4[i] | ^mask[i]
+		}
+		return out
 	}
-	return broadcast
+
+	// IPv6
+	v6 := ip.To16()
+	out := make(net.IP, net.IPv6len)
+	for i := 0; i < net.IPv6len; i++ {
+		out[i] = v6[i] | ^mask[i]
+	}
+	return out
 }
 
 func nextIP(n *net.IPNet) net.IP {
@@ -71,14 +83,13 @@ func nextIP(n *net.IPNet) net.IP {
 }
 
 func maxCIDR(startIP, endIP net.IP) int {
-	ip := startIP
 	maxPrefix := 32
-	if ip.To4() == nil {
+	if startIP.To4() == nil {
 		maxPrefix = 128
 	}
 
 	for prefix := maxPrefix; prefix >= 0; prefix-- {
-		_, network, err := net.ParseCIDR(fmt.Sprintf("%s/%d", ip.String(), prefix))
+		_, network, err := net.ParseCIDR(fmt.Sprintf("%s/%d", startIP.String(), prefix))
 		if err != nil || network == nil {
 			continue
 		}
@@ -91,15 +102,18 @@ func maxCIDR(startIP, endIP net.IP) int {
 
 func cidrRange(startIP, endIP net.IP) []net.IPNet {
 	var cidrs []net.IPNet
+
 	for ip := startIP; compareIP(ip, endIP) <= 0; {
-		maxSize := maxCIDR(ip, endIP)
-		_, network, err := net.ParseCIDR(fmt.Sprintf("%s/%d", ip.String(), maxSize))
+		mask := maxCIDR(ip, endIP)
+		_, network, err := net.ParseCIDR(fmt.Sprintf("%s/%d", ip.String(), mask))
 		if err != nil || network == nil {
 			break
 		}
+
 		cidrs = append(cidrs, *network)
 		ip = nextIP(network)
 	}
+
 	return cidrs
 }
 
