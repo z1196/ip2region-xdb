@@ -22,27 +22,27 @@ const (
 )
 
 type Record struct {
-    Country   string
-    Province  string
-    City      string
-    District  string
-    ISP       string
-    ASN       string
+    Country  string
+    Province string
+    City     string
+    District string
+    ISP      string
+    ASN      string
 }
 
 func parseLine(line string) (string, string, Record, bool) {
     parts := strings.Split(strings.TrimSpace(line), "|")
-    if len(parts) < 8 {
+    if len(parts) < 9 {
         return "", "", Record{}, false
     }
 
     return parts[0], parts[1], Record{
-        Country:  parts[2],
-        Province: parts[3],
-        City:     parts[4],
-        District: parts[5],
-        ISP:      parts[6],
-        ASN:      parts[7],
+        Country:  parts[3],
+        Province: parts[4],
+        City:     parts[5],
+        District: parts[6],
+        ISP:      parts[7],
+        ASN:      parts[8],
     }, true
 }
 
