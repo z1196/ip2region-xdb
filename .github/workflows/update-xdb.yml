@@ -26,7 +26,6 @@ jobs:
         run: |
           set -euo pipefail
           pip install -e .
-          pip install maxminddb-writer      # ←★ 新增：安装 mmdb writer
 
       - name: Resolve upstream release tag
         id: upstream
