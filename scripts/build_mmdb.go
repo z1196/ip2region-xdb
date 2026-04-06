@@ -7,6 +7,7 @@ import (
     "net"
     "os"
     "path/filepath"
+    "strconv"
     "strings"
 
     "github.com/maxmind/mmdbwriter"
@@ -21,39 +22,54 @@ const (
     ipv6Src = "ipv6_source.txt"
 )
 
+// 样板字段结构：严格对齐 raw
 type Record struct {
-    Country  string
-    Province string
-    City     string
-    District string
-    ISP      string
-    ASN      string
+    ISP            string
+    Net            string
+    Province       string
+    City           string
+    Districts      string
+    ProvinceCode   int
+    CityCode       int
+    DistrictsCode  int
 }
 
+func atoi(s string) int {
+    v, _ := strconv.Atoi(s)
+    return v
+}
+
+// 按样本字段顺序解析：
+// startIP|endIP|...|province|city|districts|isp|net|provinceCode|cityCode|districtsCode
 func parseLine(line string) (string, string, Record, bool) {
     parts := strings.Split(strings.TrimSpace(line), "|")
-    if len(parts) < 9 {
+    if len(parts) < 11 {
         return "", "", Record{}, false
     }
 
     return parts[0], parts[1], Record{
-        Country:  parts[3],
-        Province: parts[4],
-        City:     parts[5],
-        District: parts[6],
-        ISP:      parts[7],
-        ASN:      parts[8],
+        Province:      parts[3],
+        City:          parts[4],
+        Districts:     parts[5],
+        ISP:           parts[6],
+        Net:           parts[7],
+        ProvinceCode:  atoi(parts[8]),
+        CityCode:      atoi(parts[9]),
+        DistrictsCode: atoi(parts[10]),
     }, true
 }
 
+// 输出字段严格等于样板 raw
 func toMMDBRecord(r Record) mmdbtype.DataType {
     return mmdbtype.Map{
-        "country":  mmdbtype.String(r.Country),
-        "province": mmdbtype.String(r.Province),
-        "city":     mmdbtype.String(r.City),
-        "district": mmdbtype.String(r.District),
-        "isp":      mmdbtype.String(r.ISP),
-        "asn":      mmdbtype.String(r.ASN),
+        "isp":           mmdbtype.String(r.ISP),
+        "net":           mmdbtype.String(r.Net),
+        "province":      mmdbtype.String(r.Province),
+        "city":          mmdbtype.String(r.City),
+        "districts":     mmdbtype.String(r.Districts),
+        "provinceCode":  mmdbtype.Int(r.ProvinceCode),
+        "cityCode":      mmdbtype.Int(r.CityCode),
+        "districtsCode": mmdbtype.Int(r.DistrictsCode),
     }
 }
 
