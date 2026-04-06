@@ -22,9 +22,10 @@ const (
 )
 
 type Record struct {
+    Country   string
     Province  string
     City      string
-    Districts string
+    District  string
     ISP       string
     ASN       string
 }
@@ -36,22 +37,23 @@ func parseLine(line string) (string, string, Record, bool) {
     }
 
     return parts[0], parts[1], Record{
-        Province:  parts[3],
-        City:      parts[4],
-        Districts: parts[5],
-        ISP:       parts[6],
-        ASN:       parts[7],
+        Country:  parts[2],
+        Province: parts[3],
+        City:     parts[4],
+        District: parts[5],
+        ISP:      parts[6],
+        ASN:      parts[7],
     }, true
 }
 
 func toMMDBRecord(r Record) mmdbtype.DataType {
     return mmdbtype.Map{
-        "province":  mmdbtype.String(r.Province),
-        "city":      mmdbtype.String(r.City),
-        "districts": mmdbtype.String(r.Districts),
-        "isp":       mmdbtype.String(r.ISP),
-        "net":       mmdbtype.String(r.ISP),
-        "asn":       mmdbtype.String(r.ASN),
+        "country":  mmdbtype.String(r.Country),
+        "province": mmdbtype.String(r.Province),
+        "city":     mmdbtype.String(r.City),
+        "district": mmdbtype.String(r.District),
+        "isp":      mmdbtype.String(r.ISP),
+        "asn":      mmdbtype.String(r.ASN),
     }
 }
 
