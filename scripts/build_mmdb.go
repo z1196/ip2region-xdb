@@ -101,7 +101,7 @@ func main() {
 	}
 	defer f.Close()
 
-	err = writer.WriteTo(f)
+	_, err = writer.WriteTo(f)
 	if err != nil {
 		log.Fatalf("write mmdb error: %v", err)
 	}
