@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/maxmind/mmdbwriter"
+	"github.com/maxmind/mmdbwriter/mmdbtype"
 )
 
 const (
@@ -22,11 +23,11 @@ const (
 )
 
 type Record struct {
-	Country string `maxminddb:"country"`
-	Region  string `maxminddb:"region"`
-	City    string `maxminddb:"city"`
-	ISP     string `maxminddb:"isp"`
-	ASN     string `maxminddb:"asn"`
+	Country string
+	Region  string
+	City    string
+	ISP     string
+	ASN     string
 }
 
 func parseLine(line string) (string, string, Record, bool) {
@@ -104,6 +105,16 @@ func nextIP(n *net.IPNet) net.IP {
 	return ip
 }
 
+func toMMDBRecord(r Record) mmdbtype.DataType {
+	return mmdbtype.Map{
+		"country": mmdbtype.String(r.Country),
+		"region":  mmdbtype.String(r.Region),
+		"city":    mmdbtype.String(r.City),
+		"isp":     mmdbtype.String(r.ISP),
+		"asn":     mmdbtype.String(r.ASN),
+	}
+}
+
 func processFile(writer *mmdbwriter.Tree, filePath string) {
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -127,7 +138,7 @@ func processFile(writer *mmdbwriter.Tree, filePath string) {
 
 		cidrs := cidrRange(startIP, endIP)
 		for _, cidr := range cidrs {
-			err := writer.Insert(cidr, record)
+			err := writer.Insert(&cidr, toMMDBRecord(record))
 			if err != nil {
 				log.Printf("insert error: %v", err)
 			}
@@ -153,7 +164,13 @@ func main() {
 	processFile(writer, filepath.Join(dataDir, ipv4Src))
 	processFile(writer, filepath.Join(dataDir, ipv6Src))
 
-	err = writer.WriteToFile(outputPath)
+	f, err := os.Create(outputPath)
+	if err != nil {
+		log.Fatalf("file create error: %v", err)
+	}
+	defer f.Close()
+
+	_, err = writer.WriteTo(f)
 	if err != nil {
 		log.Fatalf("write mmdb error: %v", err)
 	}
