@@ -21,8 +21,8 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add location.json
-          git commit -m "Manual update location.json" || echo "No changes"
+          git add location-原始.json
+          git commit -m "Manual update location-原始.json" || echo "No changes"
 
       - name: Push changes
         run: git push
