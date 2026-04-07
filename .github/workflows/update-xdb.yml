@@ -143,7 +143,11 @@ jobs:
         id: sha256
         run: |
           set -euo pipefail
-          echo "sha256=$(sha256sum data/*)" >> "$GITHUB_OUTPUT"
+          {
+            echo "sha256<<EOF"
+            sha256sum data/*
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Get date
         id: date
@@ -179,7 +183,7 @@ jobs:
           fail_on_unmatched_files: true
 
       # ---------------------------------------------------------
-      # ★★★ 以下为新增内容：构建 mmdb + 上传 mmdb ★★★
+      # ★★★ 构建 mmdb + 上传 mmdb ★★★
       # ---------------------------------------------------------
 
       - name: Setup Go
