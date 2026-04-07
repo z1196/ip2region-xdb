@@ -22,7 +22,6 @@ const (
     ipv6Src = "ipv6_source.txt"
 )
 
-// 样板字段结构：严格对齐 raw
 type Record struct {
     ISP           string
     Net           string
@@ -34,30 +33,25 @@ type Record struct {
     DistrictsCode int
 }
 
-// 行政区划 map（扁平结构）
 var adminMap = map[string]int{}
 
-// 读取根目录 location.json（扁平 map，不动原格式）
 func loadLocationJSON() {
-    f, err := os.ReadFile("location.json")
+    f, err := os.ReadFile("location_flat.json")
     if err != nil {
-        log.Printf("location.json not found")
+        log.Printf("location_flat.json not found")
         return
     }
 
-    // 原始格式：{"辽宁省":21,"大连市":2102,"中山区":210202,...}
     var raw map[string]int
 
     if err := json.Unmarshal(f, &raw); err != nil {
-        log.Printf("location.json parse error: %v", err)
+        log.Printf("location_flat.json parse error: %v", err)
         return
     }
 
     adminMap = raw
 }
 
-// 按样本字段顺序解析：
-// startIP|endIP|...|province|city|districts|isp|net
 func parseLine(line string) (string, string, Record, bool) {
     parts := strings.Split(strings.TrimSpace(line), "|")
     if len(parts) < 9 {
@@ -76,7 +70,6 @@ func parseLine(line string) (string, string, Record, bool) {
     }, true
 }
 
-// 输出字段严格等于样板 raw
 func toMMDBRecord(r Record) mmdbtype.DataType {
     return mmdbtype.Map{
         "isp":           mmdbtype.String(r.ISP),
@@ -105,17 +98,21 @@ func processFile(writer *mmdbwriter.Tree, filePath string) {
             continue
         }
 
-        // ---- 只做赋值，不改格式 ----
+        // ---- 行政区划匹配（使用 location_flat.json）----
         if v, ok := adminMap[record.Province]; ok {
             record.ProvinceCode = v
         }
-        if v, ok := adminMap[record.City]; ok {
+
+        cityKey := record.Province + "-" + record.City
+        if v, ok := adminMap[cityKey]; ok {
             record.CityCode = v
         }
-        if v, ok := adminMap[record.Districts]; ok {
+
+        distKey := record.Province + "-" + record.City + "-" + record.Districts
+        if v, ok := adminMap[distKey]; ok {
             record.DistrictsCode = v
         }
-        // --------------------------------
+        // ------------------------------------------------
 
         startIP := net.ParseIP(start)
         endIP := net.ParseIP(end)
@@ -131,7 +128,6 @@ func main() {
     outputPath := filepath.Join(dataDir, outputMMDB)
     fmt.Println("Building MMDB:", outputPath)
 
-    // 加载行政区划 JSON（扁平 map）
     loadLocationJSON()
 
     writer, err := mmdbwriter.New(mmdbwriter.Options{
