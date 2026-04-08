@@ -22,27 +22,11 @@ const (
     ipv6Src = "ipv6_source.txt"
 )
 
-//
-// -------------------- 行政区划结构（新增） --------------------
-//
-type Committee struct {
-    Label string `json:"label"`
-    Name  string `json:"name"`
-    Code  string `json:"code"`
-}
-
-type Town struct {
-    Label      string      `json:"label"`
-    Name       string      `json:"name"`
-    Code       string      `json:"code"`
-    Committees []Committee `json:"committees"`
-}
-
+// -------------------- 行政区划结构 --------------------
 type County struct {
     Label string `json:"label"`
     Name  string `json:"name"`
     Code  string `json:"code"`
-    Towns []Town `json:"towns"`
 }
 
 type City struct {
@@ -67,10 +51,7 @@ func trimZero(s string) string {
     }
     return s
 }
-
-//
-// -------------------- 三级行政区划查询（新增） --------------------
-//
+// -------------------- 三级行政区划查询 --------------------
 func findCodes(province, city, district string) (int, int, int) {
     pCode, cCode, dCode := 0, 0, 0
 
@@ -167,7 +148,7 @@ func processFile(writer *mmdbwriter.Tree, filePath string) {
         }
 
         //
-        // ----------- 新增：根据省/市/区县查询行政代码 -----------
+        // ----------- 根据省/市/区县查询行政代码 -----------
         //
         p, c, d := findCodes(record.Province, record.City, record.Districts)
         record.ProvinceCode = p
@@ -186,7 +167,7 @@ func processFile(writer *mmdbwriter.Tree, filePath string) {
 
 func main() {
     //
-    // ----------- 新增：加载行政区划 JSON -----------
+    // ----------- 加载行政区划 JSON -----------
     //
     b, err := os.ReadFile("location.json")
     if err != nil {
