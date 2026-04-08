@@ -2,6 +2,7 @@ package main
 
 import (
     "bufio"
+    "encoding/json"
     "fmt"
     "log"
     "net"
@@ -21,7 +22,90 @@ const (
     ipv6Src = "ipv6_source.txt"
 )
 
-// 样板字段结构：
+//
+// -------------------- 行政区划结构（新增） --------------------
+//
+type Committee struct {
+    Label string `json:"label"`
+    Name  string `json:"name"`
+    Code  string `json:"code"`
+}
+
+type Town struct {
+    Label      string      `json:"label"`
+    Name       string      `json:"name"`
+    Code       string      `json:"code"`
+    Committees []Committee `json:"committees"`
+}
+
+type County struct {
+    Label string `json:"label"`
+    Name  string `json:"name"`
+    Code  string `json:"code"`
+    Towns []Town `json:"towns"`
+}
+
+type City struct {
+    Label    string   `json:"label"`
+    Name     string   `json:"name"`
+    Code     string   `json:"code"`
+    Counties []County `json:"counties"`
+}
+
+type Province struct {
+    Label  string `json:"label"`
+    Name   string `json:"name"`
+    Code   string `json:"code"`
+    Cities []City `json:"cities"`
+}
+
+var provinces []Province
+
+func trimZero(s string) string {
+    for len(s) > 0 && s[len(s)-1] == '0' {
+        s = s[:len(s)-1]
+    }
+    return s
+}
+
+//
+// -------------------- 三级行政区划查询（新增） --------------------
+//
+func findCodes(province, city, district string) (int, int, int) {
+    pCode, cCode, dCode := 0, 0, 0
+
+    for _, p := range provinces {
+        if p.Name == province {
+            pCode = atoi(trimZero(p.Code))
+
+            for _, c := range p.Cities {
+                if c.Name == city {
+                    cCode = atoi(trimZero(c.Code))
+
+                    for _, d := range c.Counties {
+                        if d.Name == district {
+                            dCode = atoi(trimZero(d.Code))
+                            return pCode, cCode, dCode
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return pCode, cCode, dCode
+}
+
+func atoi(s string) int {
+    n := 0
+    for _, c := range s {
+        n = n*10 + int(c-'0')
+    }
+    return n
+}
+
+//
+// -------------------- 原有结构体（保持不变） --------------------
+//
 type Record struct {
     ISP           string
     Net           string
@@ -82,6 +166,14 @@ func processFile(writer *mmdbwriter.Tree, filePath string) {
             continue
         }
 
+        //
+        // ----------- 新增：根据省/市/区县查询行政代码 -----------
+        //
+        p, c, d := findCodes(record.Province, record.City, record.Districts)
+        record.ProvinceCode = p
+        record.CityCode = c
+        record.DistrictsCode = d
+
         startIP := net.ParseIP(start)
         endIP := net.ParseIP(end)
         if startIP == nil || endIP == nil {
@@ -93,6 +185,17 @@ func processFile(writer *mmdbwriter.Tree, filePath string) {
 }
 
 func main() {
+    //
+    // ----------- 新增：加载行政区划 JSON -----------
+    //
+    b, err := os.ReadFile("location.json")
+    if err != nil {
+        log.Fatalf("load location.json error: %v", err)
+    }
+    if err := json.Unmarshal(b, &provinces); err != nil {
+        log.Fatalf("parse location.json error: %v", err)
+    }
+
     outputPath := filepath.Join(dataDir, outputMMDB)
     fmt.Println("Building MMDB:", outputPath)
 
