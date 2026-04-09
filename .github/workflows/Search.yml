@@ -6,7 +6,7 @@ on:
       name:
         description: "输入名称"
         required: true
-        default: "海淀区"
+        default: "北京市/市辖区/海淀区"
 
 jobs:
   run:
