@@ -1,3 +1,4 @@
+// 查询 location.json
 // 只输入 省、市、区/县、街道/乡镇、社区，名称就可以查询
 package main
 
