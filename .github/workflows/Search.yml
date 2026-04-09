@@ -19,4 +19,4 @@ jobs:
           go-version: "1.22"
 
       - name: Run
-        run: go run main.go "${{ github.event.inputs.name }}"
+        run: go run scripts/多级查询.go "${{ github.event.inputs.name }}"
