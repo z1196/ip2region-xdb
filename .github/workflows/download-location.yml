@@ -11,7 +11,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download location.json
+      - name: Download coords.json
         run: |
           curl -L \
             https://github.com/pyecharts/geo-region-coords/raw/refs/heads/master/coords.json \
