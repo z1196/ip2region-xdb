@@ -51,6 +51,7 @@ func trimZero(s string) string {
     }
     return s
 }
+
 // -------------------- 三级行政区划查询 --------------------
 func findCodes(province, city, district string) (int, int, int) {
     pCode, cCode, dCode := 0, 0, 0
@@ -84,6 +85,9 @@ func atoi(s string) int {
     return n
 }
 
+// -------------------- 新增：坐标表 --------------------
+var coords map[string][2]float64
+
 //
 // -------------------- 原有结构体（保持不变） --------------------
 //
@@ -96,6 +100,10 @@ type Record struct {
     ProvinceCode  int
     CityCode      int
     DistrictsCode int
+
+    // 新增字段
+    Lat float64
+    Lng float64
 }
 
 // 按样本字段顺序解析：
@@ -129,6 +137,10 @@ func toMMDBRecord(r Record) mmdbtype.DataType {
         "provinceCode":  mmdbtype.Int32(r.ProvinceCode),
         "cityCode":      mmdbtype.Int32(r.CityCode),
         "districtsCode": mmdbtype.Int32(r.DistrictsCode),
+
+        // 新增
+        "lat": mmdbtype.Float64(r.Lat),
+        "lng": mmdbtype.Float64(r.Lng),
     }
 }
 
@@ -155,6 +167,13 @@ func processFile(writer *mmdbwriter.Tree, filePath string) {
         record.CityCode = c
         record.DistrictsCode = d
 
+        // ----------- 新增：坐标匹配 -----------
+        key := record.Province + record.City + record.Districts
+        if v, ok := coords[key]; ok {
+            record.Lng = v[0]
+            record.Lat = v[1]
+        }
+
         startIP := net.ParseIP(start)
         endIP := net.ParseIP(end)
         if startIP == nil || endIP == nil {
@@ -175,6 +194,15 @@ func main() {
     }
     if err := json.Unmarshal(b, &provinces); err != nil {
         log.Fatalf("parse location.json error: %v", err)
+    }
+
+    // ----------- 加载 coords.json -----------
+    cb, err := os.ReadFile("coords.json")
+    if err != nil {
+        log.Fatalf("load coords.json error: %v", err)
+    }
+    if err := json.Unmarshal(cb, &coords); err != nil {
+        log.Fatalf("parse coords.json error: %v", err)
     }
 
     outputPath := filepath.Join(dataDir, outputMMDB)
