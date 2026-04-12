@@ -175,3 +175,4 @@ docker run --rm -v $(pwd)/data:/app/data lionsoul2014/ip2region-maker:latest \
 - [ljxi/GeoCN](https://github.com/ljxi/GeoCN) - 中国 IP 地理数据库
 - [MaxMind](https://www.maxmind.com/) - GeoLite2 数据提供商
 - [darlene-he/location](https://github.com/darlene-he/location) - 区域编码数据来自
+- [pyecharts/geo-region-coords](https://github.com/pyecharts/geo-region-coords) - 中国五级行政区域坐标
