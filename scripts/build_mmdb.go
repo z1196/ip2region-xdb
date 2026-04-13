@@ -86,9 +86,12 @@ func atoi(s string) int {
 }
 
 // -------------------- 新增：坐标表 --------------------
-var coords []map[string][2]float64
+var coordsRaw []map[string][2]float64
+var coords map[string][2]float64
 
+//
 // -------------------- 原有结构体（保持不变） --------------------
+//
 type Record struct {
     ISP           string
     Net           string
@@ -165,14 +168,11 @@ func processFile(writer *mmdbwriter.Tree, filePath string) {
         record.CityCode = c
         record.DistrictsCode = d
 
-        // ----------- 新增：坐标匹配 -----------
+        // ----------- 新增：坐标匹配（O(1)） -----------
         key := record.Province + record.City + record.Districts
-        for _, m := range coords {
-            if v, ok := m[key]; ok {
-                record.Lng = v[0]
-                record.Lat = v[1]
-                break
-            }
+        if v, ok := coords[key]; ok {
+            record.Lng = v[0]
+            record.Lat = v[1]
         }
 
         startIP := net.ParseIP(start)
@@ -197,13 +197,21 @@ func main() {
         log.Fatalf("parse location.json error: %v", err)
     }
 
-    // ----------- 加载 coords.json -----------
+    // ----------- 加载 coords.json（数组） -----------
     cb, err := os.ReadFile("coords.json")
     if err != nil {
         log.Fatalf("load coords.json error: %v", err)
     }
-    if err := json.Unmarshal(cb, &coords); err != nil {
+    if err := json.Unmarshal(cb, &coordsRaw); err != nil {
         log.Fatalf("parse coords.json error: %v", err)
+    }
+
+    // ----------- 转换为 map（恢复 O(1) 性能） -----------
+    coords = make(map[string][2]float64)
+    for _, m := range coordsRaw {
+        for k, v := range m {
+            coords[k] = v
+        }
     }
 
     outputPath := filepath.Join(dataDir, outputMMDB)
