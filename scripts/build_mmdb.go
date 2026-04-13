@@ -86,11 +86,9 @@ func atoi(s string) int {
 }
 
 // -------------------- 新增：坐标表 --------------------
-var coords map[string][2]float64
+var coords var coords []map[string][2]float64
 
-//
 // -------------------- 原有结构体（保持不变） --------------------
-//
 type Record struct {
     ISP           string
     Net           string
