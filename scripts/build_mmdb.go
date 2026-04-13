@@ -89,9 +89,7 @@ func atoi(s string) int {
 var coordsRaw []map[string][2]float64
 var coords map[string][2]float64
 
-//
 // -------------------- 原有结构体（保持不变） --------------------
-//
 type Record struct {
     ISP           string
     Net           string
@@ -101,10 +99,8 @@ type Record struct {
     ProvinceCode  int
     CityCode      int
     DistrictsCode int
-
-    // 新增字段
-    Lat float64
-    Lng float64
+    Lat           float64
+    Lng           float64
 }
 
 // 按样本字段顺序解析：
@@ -138,14 +134,12 @@ func toMMDBRecord(r Record) mmdbtype.DataType {
         "provinceCode":  mmdbtype.Int32(r.ProvinceCode),
         "cityCode":      mmdbtype.Int32(r.CityCode),
         "districtsCode": mmdbtype.Int32(r.DistrictsCode),
-
-        // 新增
-        "lat": mmdbtype.Float64(r.Lat),
-        "lng": mmdbtype.Float64(r.Lng),
+        "lat":           mmdbtype.Float64(r.Lat),
+        "lng":           mmdbtype.Float64(r.Lng),
     }
 }
 
-// -------------------- 新增：行政名称 → coords key --------------------
+// ------------- 行政名称与 coords key 对齐 ---------------
 func trimSuffix(s string) string {
     if strings.HasSuffix(s, "省") {
         return strings.TrimSuffix(s, "省")
@@ -181,9 +175,7 @@ func processFile(writer *mmdbwriter.Tree, filePath string) {
             continue
         }
 
-        //
         // ----------- 根据省/市/区县查询行政代码 -----------
-        //
         p, c, d := findCodes(record.Province, record.City, record.Districts)
         record.ProvinceCode = p
         record.CityCode = c
@@ -207,9 +199,8 @@ func processFile(writer *mmdbwriter.Tree, filePath string) {
 }
 
 func main() {
-    //
+
     // ----------- 加载行政区划 JSON -----------
-    //
     b, err := os.ReadFile("location.json")
     if err != nil {
         log.Fatalf("load location.json error: %v", err)
@@ -218,7 +209,7 @@ func main() {
         log.Fatalf("parse location.json error: %v", err)
     }
 
-    // ----------- 加载 coords.json（数组） -----------
+    // ----------- 加载坐标 coords.json（数组） -----------
     cb, err := os.ReadFile("coords.json")
     if err != nil {
         log.Fatalf("load coords.json error: %v", err)
@@ -227,7 +218,6 @@ func main() {
         log.Fatalf("parse coords.json error: %v", err)
     }
 
-    // ----------- 转换为 map（恢复 O(1) 性能） -----------
     coords = make(map[string][2]float64)
     for _, m := range coordsRaw {
         for k, v := range m {
