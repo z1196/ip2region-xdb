@@ -145,6 +145,27 @@ func toMMDBRecord(r Record) mmdbtype.DataType {
     }
 }
 
+// -------------------- 新增：行政名称 → coords key --------------------
+func trimSuffix(s string) string {
+    if strings.HasSuffix(s, "省") {
+        return strings.TrimSuffix(s, "省")
+    }
+    if strings.HasSuffix(s, "市") {
+        return strings.TrimSuffix(s, "市")
+    }
+    if strings.HasSuffix(s, "区") {
+        return strings.TrimSuffix(s, "区")
+    }
+    if strings.HasSuffix(s, "县") {
+        return strings.TrimSuffix(s, "县")
+    }
+    return s
+}
+
+func buildCoordKey(province, city, district string) string {
+    return trimSuffix(province) + trimSuffix(city) + trimSuffix(district)
+}
+
 func processFile(writer *mmdbwriter.Tree, filePath string) {
     f, err := os.Open(filePath)
     if err != nil {
@@ -168,8 +189,8 @@ func processFile(writer *mmdbwriter.Tree, filePath string) {
         record.CityCode = c
         record.DistrictsCode = d
 
-        // ----------- 新增：坐标匹配（O(1)） -----------
-        key := record.Province + record.City + record.Districts
+        // ----------- 新增：坐标匹配（O(1））-----------
+        key := buildCoordKey(record.Province, record.City, record.Districts)
         if v, ok := coords[key]; ok {
             record.Lng = v[0]
             record.Lat = v[1]
