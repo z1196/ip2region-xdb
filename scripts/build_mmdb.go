@@ -167,9 +167,12 @@ func processFile(writer *mmdbwriter.Tree, filePath string) {
 
         // ----------- 新增：坐标匹配 -----------
         key := record.Province + record.City + record.Districts
-        if v, ok := coords[key]; ok {
-            record.Lng = v[0]
-            record.Lat = v[1]
+        for _, m := range coords {
+            if v, ok := m[key]; ok {
+                record.Lng = v[0]
+                record.Lat = v[1]
+                break
+            }
         }
 
         startIP := net.ParseIP(start)
